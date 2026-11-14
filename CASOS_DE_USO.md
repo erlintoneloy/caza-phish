@@ -50,6 +50,11 @@
   4. El estado del reporte cambia a "REVOCADO" en D1.
   5. El reporte se tacha en la interfaz y el sistema registra la acción en el log de auditoría.
 
+---
+
+## 📊 Diagrama de Casos de Uso
+
+```mermaid
 usecaseDiagram
     actor Funcionario as "Funcionario Público"
     actor Admin as "Administrador (SaaS)"
