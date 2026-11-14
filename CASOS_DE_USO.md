@@ -55,21 +55,32 @@
 ## 📊 Diagrama de Casos de Uso
 
 ```mermaid
-usecaseDiagram
-    actor Funcionario as "Funcionario Público"
-    actor Admin as "Administrador (SaaS)"
-    actor API as "Sistema Tercero (API)"
+flowchart LR
+    %% Actores
+    F([👤 Funcionario Público])
+    A([🛡️ Administrador SaaS])
+    S([🤖 Sistema Tercero API])
+
+    %% Casos de Uso
+    subgraph CazaPhish [Plataforma CazaPhish]
+        direction TB
+        UC1(Analizar correo web<br/>Detector)
+        UC2(Consumir API de Análisis)
+        UC3(Gestionar API Keys<br/>Crear/Revocar)
+        UC4(Auditar y Revocar<br/>Reportes)
+        UC5(Iniciar Sesión Admin)
+    end
+
+    %% Conexiones
+    F --> UC1
+    S --> UC2
+    A --> UC5
+    A --> UC3
+    A --> UC4
+
+    %% Estilos para que se vea bonito
+    classDef actor fill:#1f2937,stroke:#06b6d4,stroke-width:2px,color:#fff;
+    classDef usecase fill:#111827,stroke:#374151,stroke-width:2px,color:#e5e7eb;
     
-    package CazaPhish {
-        usecase UC1 as "Analizar correo web (Detector)"
-        usecase UC2 as "Consumir API de Análisis"
-        usecase UC3 as "Gestionar API Keys (Crear/Revocar)"
-        usecase UC4 as "Auditar y Revocar Reportes"
-        usecase UC5 as "Iniciar Sesión Admin"
-        
-        Funcionario --> UC1
-        API --> UC2
-        Admin --> UC5
-        Admin --> UC3
-        Admin --> UC4
-    }
+    class F,A,S actor;
+    class UC1,UC2,UC3,UC4,UC5 usecase;
