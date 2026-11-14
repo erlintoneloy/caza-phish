@@ -1,0 +1,26 @@
+{
+  "name": "caza-phish",
+  "version": "1.0.0",
+  "description": "Motor de detección de phishing con IA en Cloudflare",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute caza-phish-db --remote --file=./schema.sql"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tu-usuario/caza-phish.git"
+  },
+  "keywords": [
+    "cloudflare",
+    "ia",
+    "phishing",
+    "hackathon"
+  ],
+  "author": "Equipo ALPHA",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^4.162.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "caza-phish",
+  "main": "src/index.js",
+  "compatibility_date": "2025-07-18",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "caza-phish-db",
+      "database_id": "7a1bc71b-7643-403c-84bb-8be246ba2129"
+    }
+  ],
+  "ai": {
+    "binding": "AI",
+    "remote": true
+  }
+}

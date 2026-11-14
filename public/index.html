@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CazaPhish - Detección Ética</title>
+    <style>
+        /* ====================================================================
+           ESTILOS TEMA CLARO VIBRANTE (CYBER-LIGHT) - CAZAPHISH (EQUIPO ALPHA)
+           ==================================================================== */
+        * { box-sizing: border-box; }
+        body { background-color: #F0F6FF; color: #0F172A; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; overflow-x: hidden; transition: background-color 0.25s, color 0.25s; }
+        .detector-wrapper { display: flex; justify-content: center; padding: 40px 16px; }
+
+        /* Tarjeta principal del Detector (Responsive) */
+        .container { background: #FFFFFF; padding: 30px; border-radius: 14px; width: 100%; max-width: 500px; box-shadow: 0 12px 35px rgba(37, 99, 235, 0.14); border: 2px solid #DBEAFE; transition: background 0.25s, border-color 0.25s; }
+        h1 { color: #2563EB; text-align: center; font-weight: 900; letter-spacing: 0.5px; margin-top: 0; }
+
+        textarea { width: 100%; height: 150px; background: #F8FAFC; color: #0F172A; border: 2px solid #CBD5E1; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; resize: vertical; transition: all 0.25s; }
+        textarea:focus { outline: none; background: #FFFFFF; border-color: #2563EB; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); }
+
+        /* Botones Principales Llamativos */
+        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #2563EB, #06B6D4); color: #FFFFFF; border: none; border-radius: 10px; font-weight: 800; font-size: 16px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35); }
+        button:hover:not(:disabled) { background: linear-gradient(135deg, #1D4ED8, #0891B2); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45); }
+        button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* Resultados del Semáforo (Colores Claros e Intensos) */
+        #resultado { margin-top: 20px; padding: 16px; border-radius: 10px; display: none; font-weight: 500; word-break: break-word; }
+        #resultado h3 { margin-top: 0; font-weight: 800; }
+        #resultado ul { padding-left: 20px; }
+        #resultado li { margin-bottom: 8px; }
+
+        .ALTO { background: #FFE4E6; border-left: 6px solid #E11D48; color: #881337; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.15); }
+        .MEDIO { background: #FEF3C7; border-left: 6px solid #F59E0B; color: #78350F; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15); }
+        .BAJO { background: #D1FAE5; border-left: 6px solid #10B981; color: #064E3B; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15); }
+
+        /* ====================================================================
+           ESTILOS PARA EL LANDING Y PANEL SAAS ADMINISTRADOR (RESPONSIVE)
+           ==================================================================== */
+        .topbar { background: #FFFFFF; border-bottom: 2px solid #E2E8F0; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); transition: background 0.25s, border-color 0.25s; }
+        .topbar-brand { color: #2563EB; font-size: 22px; font-weight: 900; cursor: pointer; letter-spacing: 0.5px; display: flex; align-items: center; }
+        .topbar-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+        .btn-inline { width: auto; padding: 9px 16px; font-size: 13px; border-radius: 8px; white-space: nowrap; }
+        .btn-outline { background: #FFFFFF; color: #1E293B; border: 2px solid #CBD5E1; box-shadow: none; }
+        .btn-outline:hover:not(:disabled) { background: #F1F5F9; border-color: #2563EB; color: #2563EB; box-shadow: none; }
+        .btn-danger { background: #E11D48; color: #FFFFFF; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.3); }
+        .btn-danger:hover:not(:disabled) { background: #BE123C; box-shadow: 0 6px 16px rgba(225, 29, 72, 0.45); }
+        .btn-success { background: #10B981; color: #FFFFFF; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .btn-success:hover:not(:disabled) { background: #059669; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45); }
+
+        /* Botón minimalista de solo ícono para acciones de tabla y tema */
+        .btn-icon-only { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; }
+
+        /* Landing Page */
+        .landing-section { max-width: 960px; margin: 50px auto; text-align: center; padding: 0 20px; }
+        .landing-title { font-size: clamp(28px, 5vw, 44px); color: #0F172A; margin-bottom: 15px; font-weight: 900; line-height: 1.2; }
+        .landing-title span { color: #2563EB; background: linear-gradient(90deg, #2563EB, #06B6D4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .landing-desc { color: #475569; font-size: clamp(15px, 2.2vw, 17px); max-width: 650px; margin: 0 auto 35px auto; line-height: 1.6; }
+        .landing-buttons { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 45px; }
+        .landing-btn-main { width: auto; padding: 14px 26px; font-size: 15px; }
+
+        .landing-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; text-align: left; }
+        .card { background: #FFFFFF; border: 2px solid #E2E8F0; padding: 24px; border-radius: 14px; transition: all 0.2s; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); }
+        .card:hover { transform: translateY(-5px); border-color: #06B6D4; box-shadow: 0 12px 28px rgba(6, 182, 212, 0.18); }
+        .card h3 { color: #2563EB; margin-top: 0; font-size: 18px; font-weight: 800; }
+        .card p { color: #475569; font-size: 14px; line-height: 1.5; margin-bottom: 0; }
+
+        /* Modal Login Admin (Responsive) */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
+        .modal-box { background: #FFFFFF; border: 2px solid #DBEAFE; padding: 28px 24px; border-radius: 14px; width: 100%; max-width: 380px; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.25); }
+        .input-field { width: 100%; padding: 12px; background: #F8FAFC; color: #0F172A; border: 2px solid #CBD5E1; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-family: inherit; }
+        .input-field:focus { outline: none; background: #FFFFFF; border-color: #2563EB; }
+        .label-field { display: block; font-size: 12px; color: #475569; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Panel SaaS Admin */
+        .saas-container { max-width: 1180px; margin: 24px auto; padding: 0 16px 50px 16px; display: none; }
+        .saas-header-bar { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+        .saas-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 25px; align-items: start; }
+        .saas-box { background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); min-width: 0; transition: background 0.25s, border-color 0.25s; }
+        .saas-box h2 { color: #2563EB; font-size: 18px; margin: 0; font-weight: 800; }
+
+        /* Cabecera de Tabla con Filtro de 10, 20 y 50 datos */
+        .table-header-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid #F1F5F9; padding-bottom: 12px; margin-bottom: 10px; }
+        .filter-control { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #475569; font-weight: 700; }
+        .select-limit { padding: 6px 10px; border-radius: 8px; border: 2px solid #CBD5E1; background: #F8FAFC; color: #0F172A; font-weight: 700; font-size: 12px; cursor: pointer; outline: none; transition: border 0.2s; }
+        .select-limit:focus { border-color: #2563EB; background: #FFFFFF; }
+
+        /* Tablas del Dashboard */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; min-width: 520px; }
+        th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #E2E8F0; color: #1E293B; vertical-align: middle; }
+        th { color: #64748B; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; background: #F8FAFC; white-space: nowrap; }
+        tr:hover { background: #F0F9FF; }
+
+        /* Controles de Paginación con Flechas SVG */
+        .pagination-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #64748B; font-weight: 600; }
+        .pagination-controls { display: flex; align-items: center; gap: 8px; }
+        .btn-page { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; background: #F8FAFC; color: #1E293B; border: 2px solid #CBD5E1; box-shadow: none; }
+        .btn-page:hover:not(:disabled) { background: #EFF6FF; border-color: #2563EB; color: #2563EB; transform: translateY(-1px); box-shadow: none; }
+
+        /* Badges */
+        .badge-ok { background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid #6EE7B7; display: inline-block; white-space: nowrap; }
+        .badge-rev { background: #FFE4E6; color: #9F1239; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid #FDA4AF; display: inline-block; white-space: nowrap; }
+        .code-key { font-family: monospace; background: #EFF6FF; padding: 6px 10px; border-radius: 6px; color: #1D4ED8; border: 1px solid #BFDBFE; font-weight: 600; display: inline-block; white-space: nowrap; }
+
+        /* ====================================================================
+           ESTILOS DE MODO OSCURO (DARK MODE)
+           ==================================================================== */
+        body.dark-mode { background-color: #09090B; color: #F4F4F5; }
+        body.dark-mode .topbar { background: #18181B; border-bottom-color: #27272A; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); }
+        body.dark-mode .topbar-brand,
+        body.dark-mode h1,
+        body.dark-mode .card h3,
+        body.dark-mode .saas-box h2 { color: #06B6D4; }
+        body.dark-mode .landing-title { color: #FFFFFF; }
+        body.dark-mode .landing-desc,
+        body.dark-mode .card p,
+        body.dark-mode .label-field,
+        body.dark-mode .filter-control,
+        body.dark-mode .pagination-bar { color: #A1A1AA; }
+        body.dark-mode .container,
+        body.dark-mode .card,
+        body.dark-mode .saas-box,
+        body.dark-mode .modal-box { background: #18181B; border-color: #27272A; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45); }
+        body.dark-mode .card:hover { border-color: #06B6D4; }
+        body.dark-mode textarea,
+        body.dark-mode .input-field,
+        body.dark-mode .select-limit { background: #09090B; color: #F4F4F5; border-color: #3F3F46; }
+        body.dark-mode textarea:focus,
+        body.dark-mode .input-field:focus,
+        body.dark-mode .select-limit:focus { background: #09090B; border-color: #06B6D4; }
+        body.dark-mode .btn-outline,
+        body.dark-mode .btn-page { background: #27272A; color: #F4F4F5; border-color: #3F3F46; }
+        body.dark-mode .btn-outline:hover:not(:disabled),
+        body.dark-mode .btn-page:hover:not(:disabled) { background: #3F3F46; border-color: #06B6D4; color: #06B6D4; }
+        body.dark-mode .table-header-bar,
+        body.dark-mode .pagination-bar { border-color: #27272A; }
+        body.dark-mode th { background: #09090B; color: #A1A1AA; border-bottom-color: #27272A; }
+        body.dark-mode td { color: #E4E4E7; border-bottom-color: #27272A; }
+        body.dark-mode tr:hover { background: rgba(6, 182, 212, 0.06); }
+        body.dark-mode .code-key { background: #09090B; color: #06B6D4; border-color: #3F3F46; }
+        body.dark-mode .badge-ok { background: rgba(16, 185, 129, 0.2); color: #34D399; border-color: rgba(16, 185, 129, 0.35); }
+        body.dark-mode .badge-rev { background: rgba(225, 29, 72, 0.2); color: #FB7185; border-color: rgba(225, 29, 72, 0.35); }
+        body.dark-mode .ALTO { background: rgba(225, 29, 72, 0.16); border-left-color: #E11D48; color: #FDA4AF; }
+        body.dark-mode .MEDIO { background: rgba(251, 191, 36, 0.16); border-left-color: #FBBF24; color: #FDE68A; }
+        body.dark-mode .BAJO { background: rgba(16, 185, 129, 0.16); border-left-color: #10B981; color: #6EE7B7; }
+        body.dark-mode #adminNombre { color: #FFFFFF !important; }
+        body.dark-mode #nuevaKeyResultado code { color: #34D399 !important; }
+
+        /* Media Queries para Celulares y Tablets */
+        @media (max-width: 920px) {
+            .saas-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .topbar { padding: 12px 16px; justify-content: center; text-align: center; }
+            .topbar-actions { width: 100%; justify-content: center; }
+            .topbar-actions .btn-inline { flex: 1 1 auto; text-align: center; padding: 9px 10px; font-size: 12px; }
+            .landing-section { margin: 32px auto; }
+            .landing-btn-main { width: 100%; }
+            .container { padding: 20px; }
+            .saas-box { padding: 16px; }
+            .saas-header-bar { flex-direction: column; align-items: flex-start; }
+            .saas-header-bar > div:last-child { width: 100%; display: flex; }
+            .saas-header-bar > div:last-child button { flex: 1; }
+            .table-header-bar { flex-direction: column; align-items: flex-start; }
+            .pagination-bar { flex-direction: column; align-items: center; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra Superior de Navegación -->
+    <div class="topbar">
+        <div class="topbar-brand" onclick="mostrarVista('landing')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><circle cx="12" cy="5" r="2"/><path d="M12 7v8a4 4 0 0 0 8 0v-2"/><polyline points="17 15 20 13 20 16"/></svg>
+            CazaPhish
+        </div>
+        <div class="topbar-actions">
+            <button class="btn-inline btn-outline" onclick="mostrarVista('landing')">Inicio</button>
+            <button class="btn-inline" onclick="mostrarVista('detector')">Ingresar al Sistema Detector</button>
+            <button id="btnNavAdmin" class="btn-inline btn-outline" onclick="abrirLoginOPanel()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Panel SaaS
+            </button>
+            <button id="btnThemeToggle" class="btn-icon-only btn-outline" onclick="alternarModoOscuro()" title="Alternar modo oscuro" aria-label="Alternar modo oscuro">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         1. VISTA LANDING PAGE
+         ================================================================== -->
+    <div id="vistaLanding" class="landing-section">
+        <div class="landing-title">Motor de Detección Ética de <span>Phishing con IA</span></div>
+        <p class="landing-desc">
+            Plataforma B2B/B2G impulsada por Cloudflare Workers AI y SQLite Serverless (D1). Analiza correos sospechosos con IA explicable o administra accesos de servicios de terceros desde la consola SaaS.
+        </p>
+
+        <div class="landing-buttons">
+            <button class="landing-btn-main" onclick="mostrarVista('detector')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                Ingresar al Sistema Detector
+            </button>
+            <button class="landing-btn-main btn-outline" onclick="abrirLoginOPanel()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Iniciar Sesión Administrador
+            </button>
+        </div>
+
+        <div class="landing-cards">
+            <div class="card">
+                <h3>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3"/><path d="M15 1v3"/><path d="M9 20v3"/><path d="M15 20v3"/><path d="M20 9h3"/><path d="M20 14h3"/><path d="M1 9h3"/><path d="M1 14h3"/></svg>
+                    IA Explicable (Semáforo)
+                </h3>
+                <p>Clasifica cada correo en riesgo ALTO, MEDIO o BAJO explicando las razones exactas y la recomendación preventiva para el funcionario.</p>
+            </div>
+            <div class="card">
+                <h3>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+                    API para Servicios de Terceros
+                </h3>
+                <p>Genera API Keys desde el panel SaaS para conectar sistemas externos, audita cuántos análisis realiza cada usuario y revoca llaves en un clic.</p>
+            </div>
+            <div class="card">
+                <h3>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Privacidad & Log de Accesos
+                </h3>
+                <p>Anonimización automática de datos sensibles (PII) antes de guardar en D1 y bitácora completa de accesos por rol.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         2. VISTA SISTEMA DETECTOR (EXACTAMENTE TU INTERFAZ ORIGINAL)
+         ================================================================== -->
+    <div id="vistaDetector" class="detector-wrapper" style="display: none;">
+        <div class="container">
+            <h1>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -4px; margin-right: 6px;"><circle cx="12" cy="5" r="2"/><path d="M12 7v8a4 4 0 0 0 8 0v-2"/><polyline points="17 15 20 13 20 16"/></svg>
+                CazaPhish
+            </h1>
+            <p style="text-align: center; font-size: 14px; color: #475569;">Pega el correo sospechoso. La IA explicará el riesgo.</p>
+            
+            <textarea id="textoCorreo" placeholder="De: jefe@empresa-falsa.com&#10;Asunto: URGENTE transferencia...&#10;&#10;Hola, necesito que..."></textarea>
+            <button onclick="analizar()">Analizar Correo</button>
+            
+            <div id="resultado"></div>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         3. VISTA PANEL SAAS DE ADMINISTRADOR (CON FLECHAS Y BOTONES SVG)
+         ================================================================== -->
+    <div id="vistaSaas" class="saas-container">
+        <div class="saas-box saas-header-bar">
+            <div>
+                <h2 style="margin-bottom: 4px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Panel SaaS de Administración
+                </h2>
+                <span style="font-size: 13px; color: #475569;">Sesión activa: <strong id="adminNombre" style="color: #0F172A;">admin@cazaphish.com</strong> (Rol: ADMINISTRADOR) &bull; API en este equipo: <code id="apiActivaEquipoLabel" class="code-key" style="padding: 2px 6px; font-size: 11px;">alpha-secret-key-2026</code></span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-inline btn-outline" onclick="cargarDatosSaas()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    Actualizar
+                </button>
+                <button class="btn-inline btn-danger" onclick="cerrarSesionAdmin()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="saas-grid">
+            <!-- Crear nueva API Key para Tercero -->
+            <div class="saas-box">
+                <div class="table-header-bar">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Generar API para Terceros
+                    </h2>
+                </div>
+                <p style="font-size: 13px; color: #475569;">Registra un usuario o servicio externo para que consuma <code>/api/analyze</code>.</p>
+                <input id="nuevoTerceroNombre" class="input-field" type="text" placeholder="Nombre del Usuario / Servicio (ej. Bot WhatsApp)">
+                <button onclick="crearTerceroApi()">Generar Nueva API Key</button>
+                <div id="nuevaKeyResultado" style="display: none; margin-top: 15px; padding: 10px; background: rgba(34,197,94,0.15); border-left: 4px solid #22c55e; font-size: 12px; word-break: break-all;"></div>
+            </div>
+
+            <!-- Tabla de Usuarios que usan la API -->
+            <div class="saas-box">
+                <div class="table-header-bar">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+                        Usuarios y Servicios con API Key
+                    </h2>
+                    <div class="filter-control">
+                        <span>Mostrar:</span>
+                        <select id="filtroTerceros" class="select-limit" onchange="cambiarFiltro('terceros')">
+                            <option value="10" selected>10 datos</option>
+                            <option value="20">20 datos</option>
+                            <option value="50">50 datos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuario / Servicio Tercero</th>
+                                <th>API Key</th>
+                                <th>Consumo</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaTerceros"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-bar">
+                    <span id="infoPagTerceros">Mostrando 0 de 0</span>
+                    <div class="pagination-controls">
+                        <button id="prevTerceros" class="btn-page" onclick="cambiarPagina('terceros', -1)" title="Página anterior">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <span id="numPagTerceros">Página 1 de 1</span>
+                        <button id="nextTerceros" class="btn-page" onclick="cambiarPagina('terceros', 1)" title="Página siguiente">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reportes Analizados -->
+        <div class="saas-box" style="margin-bottom: 25px;">
+            <div class="table-header-bar">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                    Reportes de Correos Analizados (Anonimizados en D1)
+                </h2>
+                <div class="filter-control">
+                    <span>Mostrar:</span>
+                    <select id="filtroReportes" class="select-limit" onchange="cambiarFiltro('reportes')">
+                        <option value="10" selected>10 datos</option>
+                        <option value="20">20 datos</option>
+                        <option value="50">50 datos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tercero / API</th>
+                            <th>Extracto Anonimizado</th>
+                            <th>Riesgo IA</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaReportes"></tbody>
+                </table>
+            </div>
+            <div class="pagination-bar">
+                <span id="infoPagReportes">Mostrando 0 de 0</span>
+                <div class="pagination-controls">
+                    <button id="prevReportes" class="btn-page" onclick="cambiarPagina('reportes', -1)" title="Página anterior">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <span id="numPagReportes">Página 1 de 1</span>
+                    <button id="nextReportes" class="btn-page" onclick="cambiarPagina('reportes', 1)" title="Página siguiente">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log de Accesos al Sistema -->
+        <div class="saas-box">
+            <div class="table-header-bar">
+                <h2>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Log de Accesos y Auditoría del Sistema
+                </h2>
+                <div class="filter-control">
+                    <span>Mostrar:</span>
+                    <select id="filtroLogs" class="select-limit" onchange="cambiarFiltro('logs')">
+                        <option value="10" selected>10 datos</option>
+                        <option value="20">20 datos</option>
+                        <option value="50">50 datos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario / Tercero</th>
+                            <th>Rol</th>
+                            <th>Evento</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaLogsAcceso"></tbody>
+                </table>
+            </div>
+            <div class="pagination-bar">
+                <span id="infoPagLogs">Mostrando 0 de 0</span>
+                <div class="pagination-controls">
+                    <button id="prevLogs" class="btn-page" onclick="cambiarPagina('logs', -1)" title="Página anterior">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <span id="numPagLogs">Página 1 de 1</span>
+                    <button id="nextLogs" class="btn-page" onclick="cambiarPagina('logs', 1)" title="Página siguiente">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================================================================
+         MODAL DE INICIO DE SESIÓN DE PRODUCCIÓN
+         ================================================================== -->
+    <div id="modalLogin" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color: #2563EB; margin-top: 0; margin-bottom: 18px; text-align: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 6px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Iniciar Sesión Administrador
+            </h2>
+
+            <label class="label-field">Correo o Usuario Administrador</label>
+            <input id="loginUsuario" class="input-field" type="text" placeholder="admin@cazaphish.com">
+
+            <label class="label-field">Contraseña</label>
+            <input id="loginPassword" class="input-field" type="password" placeholder="••••••••">
+            
+            <button onclick="iniciarSesionAdmin()" style="margin-top: 6px; margin-bottom: 8px;">Ingresar al Panel SaaS</button>
+            <button class="btn-outline" onclick="cerrarModalLogin()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        // API Key activa en este equipo (guardada en el navegador local)
+        let apiActivaEquipo = localStorage.getItem('cazaphish_device_api_key') || 'alpha-secret-key-2026';
+
+        // ====================================================================
+        // FUNCIÓN ORIGINAL DEL DETECTOR INTACTA
+        // ====================================================================
+        async function analizar() {
+            const texto = document.getElementById('textoCorreo').value;
+            const resDiv = document.getElementById('resultado');
+            if(!texto) return alert("Pega un correo primero");
+
+            resDiv.style.display = 'block';
+            resDiv.className = '';
+            resDiv.innerHTML = 'Analizando con IA...';
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texto: texto, api_key: apiActivaEquipo })
+                });
+                
+                if(!response.ok) throw new Error("Error en la petición");
+                
+                const data = await response.json();
+                
+                resDiv.className = data.riesgo;
+                resDiv.innerHTML = `
+                    <h3>Riesgo: ${data.riesgo}</h3>
+                    <ul>${data.razones.map(r => `<li>${r}</li>`).join('')}</ul>
+                    <p><strong>Recomendación:</strong> ${data.recomendacion}</p>
+                `;
+            } catch (e) {
+                resDiv.className = 'ALTO';
+                resDiv.innerHTML = 'Error de conexión con el servidor o límite de IA alcanzado.';
+            }
+        }
+
+        // ====================================================================
+        // LÓGICA DE NAVEGACIÓN, LOGIN, PAGINACIÓN Y ACCIONES CON ÍCONO SVG
+        // ====================================================================
+        let adminAutenticado = false;
+        let datosSaasCache = { terceros: [], reportes: [], access_logs: [] };
+        let paginasActuales = { terceros: 1, reportes: 1, logs: 1 };
+
+        const svgLockIcon = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+        const svgGearIcon = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+        const svgCheckIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+        // Íconos SVG minimalistas para Modo Oscuro (Luna y Sol)
+        const svgMoonIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+        const svgSunIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+
+        // Íconos SVG minimalistas para los botones de Revocar, Reactivar y Elegir API en este equipo
+        const svgRevokeIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`;
+        const svgReactivateIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+        const svgDeviceIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`;
+
+        // Función para alternar Modo Oscuro y guardarlo en localStorage
+        function alternarModoOscuro() {
+            const esOscuro = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('cazaphish_dark_mode', esOscuro ? '1' : '0');
+            const btn = document.getElementById('btnThemeToggle');
+            if (btn) btn.innerHTML = esOscuro ? svgSunIcon : svgMoonIcon;
+        }
+
+        // Aplicar preferencia de modo oscuro al cargar
+        if (localStorage.getItem('cazaphish_dark_mode') === '1') {
+            document.body.classList.add('dark-mode');
+            const btn = document.getElementById('btnThemeToggle');
+            if (btn) btn.innerHTML = svgSunIcon;
+        }
+
+        // Función para elegir la API Key con la que trabajará este equipo
+        function seleccionarApiEnEquipo(apiKey) {
+            apiActivaEquipo = apiKey;
+            localStorage.setItem('cazaphish_device_api_key', apiKey);
+            const lbl = document.getElementById('apiActivaEquipoLabel');
+            if (lbl) lbl.textContent = apiKey;
+            renderizarTablasSaas();
+        }
+
+        function mostrarVista(vista) {
+            document.getElementById('vistaLanding').style.display = vista === 'landing' ? 'block' : 'none';
+            document.getElementById('vistaDetector').style.display = vista === 'detector' ? 'flex' : 'none';
+            document.getElementById('vistaSaas').style.display = vista === 'saas' ? 'block' : 'none';
+            if (vista === 'saas') cargarDatosSaas();
+        }
+
+        function abrirLoginOPanel() {
+            if (adminAutenticado) {
+                mostrarVista('saas');
+            } else {
+                document.getElementById('modalLogin').style.display = 'flex';
+            }
+        }
+
+        function cerrarModalLogin() {
+            document.getElementById('modalLogin').style.display = 'none';
+        }
+
+        async function iniciarSesionAdmin() {
+            const usuario = document.getElementById('loginUsuario').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!usuario || !password) {
+                return alert('Por favor ingresa usuario y contraseña.');
+            }
+
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, password })
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.exito) {
+                return alert(data.error || 'Credenciales incorrectas');
+            }
+
+            adminAutenticado = true;
+            document.getElementById('adminNombre').textContent = `${data.admin.nombre} (${data.admin.usuario})`;
+            document.getElementById('btnNavAdmin').innerHTML = `${svgGearIcon} Panel SaaS (Activo)`;
+            document.getElementById('loginPassword').value = '';
+            cerrarModalLogin();
+            mostrarVista('saas');
+        }
+
+        function cerrarSesionAdmin() {
+            adminAutenticado = false;
+            document.getElementById('btnNavAdmin').innerHTML = `${svgLockIcon} Panel SaaS Admin`;
+            mostrarVista('landing');
+        }
+
+        async function cargarDatosSaas() {
+            const res = await fetch('/api/admin/overview');
+            const data = await res.json();
+            if (!data.exito) return;
+
+            datosSaasCache.terceros = data.terceros || [];
+            datosSaasCache.reportes = data.reportes || [];
+            datosSaasCache.access_logs = data.access_logs || [];
+
+            const lbl = document.getElementById('apiActivaEquipoLabel');
+            if (lbl) lbl.textContent = apiActivaEquipo;
+
+            renderizarTablasSaas();
+        }
+
+        function cambiarFiltro(tabla) {
+            paginasActuales[tabla] = 1;
+            renderizarTablasSaas();
+        }
+
+        function cambiarPagina(tabla, direccion) {
+            paginasActuales[tabla] += direccion;
+            renderizarTablasSaas();
+        }
+
+        // Elimina referencias a números de reporte o IDs en el texto del evento
+        function limpiarNumeroReporte(accionTexto) {
+            if (!accionTexto) return '';
+            return String(accionTexto)
+                .replace(/\s*-\s*Reporte\s*#?\w+/gi, '')
+                .replace(/\s*\(?Reporte\s*#\d+\)?/gi, '')
+                .replace(/\s*#\d+/g, '')
+                .trim();
+        }
+
+        function paginarArreglo(lista, paginaActual, limite) {
+            const totalItems = lista.length;
+            const totalPaginas = Math.max(1, Math.ceil(totalItems / limite));
+            const paginaSegura = Math.min(Math.max(1, paginaActual), totalPaginas);
+            const inicio = (paginaSegura - 1) * limite;
+            const fin = Math.min(inicio + limite, totalItems);
+            return {
+                items: lista.slice(inicio, fin),
+                paginaSegura,
+                totalPaginas,
+                totalItems,
+                mostrandoInicio: totalItems === 0 ? 0 : inicio + 1,
+                mostrandoFin: fin
+            };
+        }
+
+        function renderizarTablasSaas() {
+            // 1. Paginación y renderizado de Terceros (APIs) + Botón para elegir API en este equipo
+            const limTerceros = parseInt(document.getElementById('filtroTerceros').value, 10) || 10;
+            const pagT = paginarArreglo(datosSaasCache.terceros, paginasActuales.terceros, limTerceros);
+            paginasActuales.terceros = pagT.paginaSegura;
+
+            document.getElementById('tablaTerceros').innerHTML = pagT.items.map(t => {
+                const esApiEnUso = t.api_key === apiActivaEquipo;
+                return `
+                <tr>
+                    <td><strong>${t.nombre}</strong></td>
+                    <td><span class="code-key">${t.api_key}</span></td>
+                    <td>${t.total_uso} análisis</td>
+                    <td>${t.activo ? '<span class="badge-ok">ACTIVA</span>' : '<span class="badge-rev">REVOCADA</span>'}</td>
+                    <td style="display: flex; gap: 6px; align-items: center;">
+                        <button class="btn-icon-only ${esApiEnUso ? 'btn-success' : 'btn-outline'}"
+                            title="${esApiEnUso ? 'API en uso actualmente en este equipo' : 'Elegir esta API para trabajar en este equipo'}"
+                            aria-label="Elegir API para este equipo"
+                            onclick="seleccionarApiEnEquipo('${t.api_key}')">
+                            ${svgDeviceIcon}
+                        </button>
+                        ${t.activo
+                            ? `<button class="btn-icon-only btn-danger" title="Revocar API" aria-label="Revocar API" onclick="cambiarEstadoTercero(${t.id}, false)">${svgRevokeIcon}</button>`
+                            : `<button class="btn-icon-only btn-success" title="Reactivar API" aria-label="Reactivar API" onclick="cambiarEstadoTercero(${t.id}, true)">${svgReactivateIcon}</button>`
+                        }
+                    </td>
+                </tr>
+            `}).join('');
+
+            document.getElementById('infoPagTerceros').textContent = `Mostrando ${pagT.mostrandoInicio}-${pagT.mostrandoFin} de ${pagT.totalItems}`;
+            document.getElementById('numPagTerceros').textContent = `Página ${pagT.paginaSegura} de ${pagT.totalPaginas}`;
+            document.getElementById('prevTerceros').disabled = pagT.paginaSegura <= 1;
+            document.getElementById('nextTerceros').disabled = pagT.paginaSegura >= pagT.totalPaginas;
+
+            // 2. Paginación y renderizado de Reportes
+            const limReportes = parseInt(document.getElementById('filtroReportes').value, 10) || 10;
+            const pagR = paginarArreglo(datosSaasCache.reportes, paginasActuales.reportes, limReportes);
+            paginasActuales.reportes = pagR.paginaSegura;
+
+            document.getElementById('tablaReportes').innerHTML = pagR.items.map(r => `
+                <tr>
+                    <td><strong>${r.tercero}</strong></td>
+                    <td style="max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${r.texto_anonimizado}</td>
+                    <td><strong>${r.riesgo}</strong></td>
+                    <td>${r.estado === 'REVOCADO' ? '<span class="badge-rev">REVOCADO</span>' : '<span class="badge-ok">ACTIVO</span>'}</td>
+                    <td>
+                        ${r.estado !== 'REVOCADO'
+                            ? `<button class="btn-icon-only btn-danger" title="Revocar incidente" aria-label="Revocar incidente" onclick="revocarReporteSaas(${r.id})">${svgRevokeIcon}</button>`
+                            : '-'
+                        }
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('infoPagReportes').textContent = `Mostrando ${pagR.mostrandoInicio}-${pagR.mostrandoFin} de ${pagR.totalItems}`;
+            document.getElementById('numPagReportes').textContent = `Página ${pagR.paginaSegura} de ${pagR.totalPaginas}`;
+            document.getElementById('prevReportes').disabled = pagR.paginaSegura <= 1;
+            document.getElementById('nextReportes').disabled = pagR.paginaSegura >= pagR.totalPaginas;
+
+            // 3. Paginación y renderizado de Bitácora de Accesos (sin número de reporte en Eventos)
+            const limLogs = parseInt(document.getElementById('filtroLogs').value, 10) || 10;
+            const pagL = paginarArreglo(datosSaasCache.access_logs, paginasActuales.logs, limLogs);
+            paginasActuales.logs = pagL.paginaSegura;
+
+            document.getElementById('tablaLogsAcceso').innerHTML = pagL.items.map(l => `
+                <tr>
+                    <td>${l.fecha}</td>
+                    <td><strong>${l.usuario}</strong></td>
+                    <td>${l.rol}</td>
+                    <td>${limpiarNumeroReporte(l.accion)}</td>
+                    <td>${l.estado === 'DENEGADO' || l.estado === 'REVOCADO'
+                        ? `<span class="badge-rev">${l.estado}</span>`
+                        : `<span class="badge-ok">${l.estado}</span>`}
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('infoPagLogs').textContent = `Mostrando ${pagL.mostrandoInicio}-${pagL.mostrandoFin} de ${pagL.totalItems}`;
+            document.getElementById('numPagLogs').textContent = `Página ${pagL.paginaSegura} de ${pagL.totalPaginas}`;
+            document.getElementById('prevLogs').disabled = pagL.paginaSegura <= 1;
+            document.getElementById('nextLogs').disabled = pagL.paginaSegura >= pagL.totalPaginas;
+        }
+
+        async function crearTerceroApi() {
+            const input = document.getElementById('nuevoTerceroNombre');
+            const nombre = input.value.trim();
+            if (!nombre) return alert('Escribe el nombre del usuario o servicio tercero');
+
+            const res = await fetch('/api/admin/terceros', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre })
+            });
+            const data = await res.json();
+            if (data.exito) {
+                const banner = document.getElementById('nuevaKeyResultado');
+                banner.style.display = 'block';
+                banner.innerHTML = `${svgCheckIcon} API Key creada para <strong>${data.nombre}</strong>:<br><code style="color:#0F172A;">${data.api_key}</code>`;
+                input.value = '';
+                cargarDatosSaas();
+            }
+        }
+
+        async function cambiarEstadoTercero(id, activo) {
+            await fetch('/api/admin/terceros/toggle', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, activo })
+            });
+            cargarDatosSaas();
+        }
+
+        async function revocarReporteSaas(id) {
+            await fetch('/api/admin/reportes/revoke', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+            cargarDatosSaas();
+        }
+    </script>
+</body>
+</html>
