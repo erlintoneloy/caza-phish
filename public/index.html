@@ -104,6 +104,20 @@
         .badge-rev { background: #FFE4E6; color: #9F1239; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; border: 1px solid #FDA4AF; display: inline-block; white-space: nowrap; }
         .code-key { font-family: monospace; background: #EFF6FF; padding: 6px 10px; border-radius: 6px; color: #1D4ED8; border: 1px solid #BFDBFE; font-weight: 600; display: inline-block; white-space: nowrap; }
 
+        /* Módulo Modelo de Negocio (Botón pequeño + Modal) */
+        .landing-footer-action { margin-top: 28px; display: flex; justify-content: center; }
+        .btn-modelo-small { width: auto; padding: 7px 14px; font-size: 12px; font-weight: 700; border-radius: 999px; background: #FFFFFF; color: #2563EB; border: 1.5px solid #BFDBFE; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08); display: inline-flex; align-items: center; gap: 6px; }
+        .btn-modelo-small:hover:not(:disabled) { background: #EFF6FF; border-color: #06B6D4; color: #1D4ED8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(6, 182, 212, 0.18); }
+        .modal-modelo-box { background: #FFFFFF; border: 2px solid #DBEAFE; padding: 26px; border-radius: 16px; width: 100%; max-width: 860px; max-height: 86vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.25); text-align: left; }
+        .modal-modelo-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 2px solid #F1F5F9; padding-bottom: 14px; margin-bottom: 18px; }
+        .modelo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+        .modelo-item { background: #F8FAFC; border: 1.5px solid #E2E8F0; border-left: 4px solid #2563EB; border-radius: 10px; padding: 14px; }
+        .modelo-item.cyan { border-left-color: #06B6D4; }
+        .modelo-item h4 { margin: 0 0 8px 0; font-size: 14px; font-weight: 800; color: #2563EB; }
+        .modelo-item.cyan h4 { color: #0891B2; }
+        .modelo-item ul { margin: 0; padding-left: 16px; font-size: 12.5px; color: #334155; line-height: 1.5; }
+        .modelo-item li { margin-bottom: 5px; }
+
         /* ====================================================================
            ESTILOS DE MODO OSCURO (DARK MODE)
            ==================================================================== */
@@ -112,17 +126,22 @@
         body.dark-mode .topbar-brand,
         body.dark-mode h1,
         body.dark-mode .card h3,
-        body.dark-mode .saas-box h2 { color: #06B6D4; }
+        body.dark-mode .saas-box h2,
+        body.dark-mode .modelo-item h4 { color: #06B6D4; }
         body.dark-mode .landing-title { color: #FFFFFF; }
         body.dark-mode .landing-desc,
         body.dark-mode .card p,
         body.dark-mode .label-field,
         body.dark-mode .filter-control,
-        body.dark-mode .pagination-bar { color: #A1A1AA; }
+        body.dark-mode .pagination-bar,
+        body.dark-mode .modelo-item ul { color: #A1A1AA; }
         body.dark-mode .container,
         body.dark-mode .card,
         body.dark-mode .saas-box,
-        body.dark-mode .modal-box { background: #18181B; border-color: #27272A; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45); }
+        body.dark-mode .modal-box,
+        body.dark-mode .modal-modelo-box { background: #18181B; border-color: #27272A; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45); }
+        body.dark-mode .modelo-item { background: #09090B; border-color: #27272A; border-left-color: #2563EB; }
+        body.dark-mode .modelo-item.cyan { border-left-color: #06B6D4; }
         body.dark-mode .card:hover { border-color: #06B6D4; }
         body.dark-mode textarea,
         body.dark-mode .input-field,
@@ -131,11 +150,14 @@
         body.dark-mode .input-field:focus,
         body.dark-mode .select-limit:focus { background: #09090B; border-color: #06B6D4; }
         body.dark-mode .btn-outline,
-        body.dark-mode .btn-page { background: #27272A; color: #F4F4F5; border-color: #3F3F46; }
+        body.dark-mode .btn-page,
+        body.dark-mode .btn-modelo-small { background: #27272A; color: #F4F4F5; border-color: #3F3F46; }
         body.dark-mode .btn-outline:hover:not(:disabled),
-        body.dark-mode .btn-page:hover:not(:disabled) { background: #3F3F46; border-color: #06B6D4; color: #06B6D4; }
+        body.dark-mode .btn-page:hover:not(:disabled),
+        body.dark-mode .btn-modelo-small:hover:not(:disabled) { background: #3F3F46; border-color: #06B6D4; color: #06B6D4; }
         body.dark-mode .table-header-bar,
-        body.dark-mode .pagination-bar { border-color: #27272A; }
+        body.dark-mode .pagination-bar,
+        body.dark-mode .modal-modelo-header { border-color: #27272A; }
         body.dark-mode th { background: #09090B; color: #A1A1AA; border-bottom-color: #27272A; }
         body.dark-mode td { color: #E4E4E7; border-bottom-color: #27272A; }
         body.dark-mode tr:hover { background: rgba(6, 182, 212, 0.06); }
@@ -181,7 +203,7 @@
             <button class="btn-inline" onclick="mostrarVista('detector')">Ingresar al Sistema Detector</button>
             <button id="btnNavAdmin" class="btn-inline btn-outline" onclick="abrirLoginOPanel()">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                Panel SaaS
+                Panel SaaS Admin
             </button>
             <button id="btnThemeToggle" class="btn-icon-only btn-outline" onclick="alternarModoOscuro()" title="Alternar modo oscuro" aria-label="Alternar modo oscuro">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -231,6 +253,13 @@
                 </h3>
                 <p>Anonimización automática de datos sensibles (PII) antes de guardar en D1 y bitácora completa de accesos por rol.</p>
             </div>
+        </div>
+
+        <div class="landing-footer-action">
+            <button class="btn-modelo-small" onclick="abrirModalModelo()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                Modelo de Negocio
+            </button>
         </div>
     </div>
 
@@ -283,7 +312,7 @@
                     </h2>
                 </div>
                 <p style="font-size: 13px; color: #475569;">Registra un usuario o servicio externo para que consuma <code>/api/analyze</code>.</p>
-                <input id="nuevoTerceroNombre" class="input-field" type="text" placeholder="Nombre del Usuario / Servicio (ej. Bot WhatsApp)">
+                <input id="nuevoTerceroNombre" class="input-field" type="text" placeholder="Nombre del Usuario / Servicio (ej. Bot WhatsApp SENIAT)">
                 <button onclick="crearTerceroApi()">Generar Nueva API Key</button>
                 <div id="nuevaKeyResultado" style="display: none; margin-top: 15px; padding: 10px; background: rgba(34,197,94,0.15); border-left: 4px solid #22c55e; font-size: 12px; word-break: break-all;"></div>
             </div>
@@ -443,6 +472,77 @@
         </div>
     </div>
 
+    <!-- ==================================================================
+         MÓDULO: MODAL MODELO DE NEGOCIO
+         ================================================================== -->
+    <div id="modalModelo" class="modal-overlay" onclick="if(event.target === this) cerrarModalModelo()">
+        <div class="modal-modelo-box">
+            <div class="modal-modelo-header">
+                <h2 style="color: #2563EB; margin: 0; font-size: 19px; font-weight: 900; display: flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    Modelo de Negocio — CazaPhish (SaaS B2B / B2G)
+                </h2>
+                <button class="btn-inline btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="cerrarModalModelo()">Cerrar</button>
+            </div>
+
+            <div class="modelo-grid">
+                <div class="modelo-item">
+                    <h4>1. Propuesta de Valor</h4>
+                    <ul>
+                        <li><strong>IA Explicable (XAI):</strong> Diagnóstico en semáforo (ALTO, MEDIO, BAJO) con motivos exactos y recomendación preventiva.</li>
+                        <li><strong>Soberanía y Privacidad:</strong> Enmascaramiento automático de PII en el Edge de Cloudflare sin hardware local.</li>
+                        <li><strong>Human-in-the-loop:</strong> La IA alerta y educa; el funcionario conserva la decisión final.</li>
+                    </ul>
+                </div>
+
+                <div class="modelo-item cyan">
+                    <h4>2. Segmentos de Clientes</h4>
+                    <ul>
+                        <li><strong>Sector Público (B2G):</strong> Ministerios, entes recaudadores, alcaldías y universidades.</li>
+                        <li><strong>Sector Corporativo (B2B):</strong> Empresas, banca, seguros y comercios.</li>
+                        <li><strong>Integradores y MSP:</strong> Plataformas que conectan bots de WhatsApp, Telegram o correo.</li>
+                    </ul>
+                </div>
+
+                <div class="modelo-item">
+                    <h4>3. Fuentes de Ingresos</h4>
+                    <ul>
+                        <li><strong>Capa Pública Gratuita:</strong> Acceso web base para funcionarios y ciudadanía.</li>
+                        <li><strong>Plan Pyme / Pro:</strong> Suscripción mensual con API Keys para bots y alertas Webhook.</li>
+                        <li><strong>Plan Institucional / Enterprise:</strong> Licencia anual B2B/B2G con alto volumen, auditoría extendida y soporte SLA.</li>
+                    </ul>
+                </div>
+
+                <div class="modelo-item cyan">
+                    <h4>4. Canales y Relación</h4>
+                    <ul>
+                        <li><strong>Portal Web Autoservicio:</strong> Registro y gestión directa desde la consola SaaS.</li>
+                        <li><strong>API REST & Webhooks:</strong> Integración en flujos de mensajería y pasarelas de correo.</li>
+                        <li><strong>Alianzas Estratégicas:</strong> Pilotos institucionales impulsados junto a UNETI y CAVECOM-E.</li>
+                    </ul>
+                </div>
+
+                <div class="modelo-item">
+                    <h4>5. Recursos y Socios Clave</h4>
+                    <ul>
+                        <li><strong>Stack Edge Serverless:</strong> Cloudflare Workers, Workers AI (Llama 3.1) y SQLite D1.</li>
+                        <li><strong>Motor Propietario:</strong> Reglas de anonimización de datos y prompts especializados.</li>
+                        <li><strong>Equipo ALPHA:</strong> Talento multidisciplinario respaldado por UNETI y CAVECOM-E.</li>
+                    </ul>
+                </div>
+
+                <div class="modelo-item cyan">
+                    <h4>6. Estructura de Costos</h4>
+                    <ul>
+                        <li><strong>Cero Inversión en Servidores:</strong> Sin compra ni mantenimiento de GPUs físicas.</li>
+                        <li><strong>Pago por Uso Real:</strong> Escalabilidad automática proporcional al consumo de clientes activos.</li>
+                        <li><strong>Márgenes SaaS Altos:</strong> Costos operativos mínimos en la red global de Cloudflare.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // API Key activa en este equipo (guardada en el navegador local)
         let apiActivaEquipo = localStorage.getItem('cazaphish_device_api_key') || 'alpha-secret-key-2026';
@@ -515,6 +615,14 @@
             document.body.classList.add('dark-mode');
             const btn = document.getElementById('btnThemeToggle');
             if (btn) btn.innerHTML = svgSunIcon;
+        }
+
+        function abrirModalModelo() {
+            document.getElementById('modalModelo').style.display = 'flex';
+        }
+
+        function cerrarModalModelo() {
+            document.getElementById('modalModelo').style.display = 'none';
         }
 
         // Función para elegir la API Key con la que trabajará este equipo
